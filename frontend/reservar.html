@@ -140,11 +140,21 @@ function elegir(hora, franja) {
   ocultarAvisos();
 }
 
-campoFecha.addEventListener("change", () => {
+/**
+ * Se escuchan "input" y "change": segun el navegador y la forma de cargar la
+ * fecha (calendario, teclado, autocompletado, Cypress) se dispara uno u otro.
+ * Escuchando solo "change", la agenda no se cargaba al escribir la fecha.
+ */
+let fechaCargada = null;
+function alCambiarFecha() {
+  if (campoFecha.value === fechaCargada) return;
+  fechaCargada = campoFecha.value;
   limpiarErrores();
   ocultarAvisos();
   cargarHorarios();
-});
+}
+campoFecha.addEventListener("input", alCambiarFecha);
+campoFecha.addEventListener("change", alCambiarFecha);
 
 document.querySelector('[data-cy="booking-form"]').addEventListener("submit", async (e) => {
   e.preventDefault();
