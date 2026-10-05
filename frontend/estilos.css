@@ -1,0 +1,243 @@
+:root {
+  --tinta: #16202e;
+  --papel: #fbfaf6;
+  --borde: #ddd9cf;
+  --acento: #1f5e4a;
+  --alerta: #a33327;
+  --gris: #6e7480;
+
+  --serif: Georgia, "Times New Roman", serif;
+  --sans: "Segoe UI", Roboto, system-ui, -apple-system, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+a { color: var(--acento); }
+
+/* ---------------------------------------------------------------- estructura */
+
+.barra {
+  border-bottom: 1px solid var(--borde);
+  padding: 18px 28px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.marca {
+  font-family: var(--serif);
+  font-size: 22px;
+  letter-spacing: -0.01em;
+}
+
+.marca span { color: var(--acento); }
+
+.barra nav { font-size: 14px; }
+.barra nav a { margin-left: 18px; }
+
+.hoja {
+  max-width: 460px;
+  margin: 56px auto;
+  padding: 0 24px;
+}
+
+.ancha { max-width: 900px; }
+
+h1 {
+  font-family: var(--serif);
+  font-size: 30px;
+  font-weight: normal;
+  line-height: 1.2;
+  margin: 0 0 8px;
+}
+
+.bajada {
+  color: var(--gris);
+  margin: 0 0 32px;
+  font-size: 15px;
+}
+
+/* -------------------------------------------------------------- formularios */
+
+.campo { margin-bottom: 20px; }
+
+.campo label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.campo input,
+.campo textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--borde);
+  border-radius: 3px;
+  background: #fff;
+  font: inherit;
+  color: inherit;
+}
+
+.campo input:focus,
+.campo textarea:focus {
+  outline: 2px solid var(--acento);
+  outline-offset: 1px;
+  border-color: var(--acento);
+}
+
+.campo textarea { min-height: 84px; resize: vertical; }
+
+.opcional { color: var(--gris); font-size: 13px; }
+
+/* estado de error: se resalta el campo y se explica que falta (CP-008) */
+.campo.error input,
+.campo.error textarea { border-color: var(--alerta); background: #fdf6f5; }
+
+.campo .detalle-error {
+  display: none;
+  color: var(--alerta);
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+.campo.error .detalle-error { display: block; }
+
+/* ------------------------------------------------------------------ botones */
+
+button {
+  font: inherit;
+  padding: 11px 20px;
+  border: 1px solid var(--tinta);
+  border-radius: 3px;
+  background: var(--tinta);
+  color: var(--papel);
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) { background: #22304a; border-color: #22304a; }
+
+button:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+
+/* CP-009: al procesarse, el boton queda inutilizable y lo comunica */
+button:disabled {
+  background: var(--gris);
+  border-color: var(--gris);
+  color: #f2f2f2;
+  cursor: not-allowed;
+}
+
+.ancho-total { width: 100%; }
+
+.pie-formulario {
+  margin-top: 24px;
+  font-size: 14px;
+  color: var(--gris);
+}
+
+/* ------------------------------------------------------------------ mensajes */
+
+.aviso {
+  display: none;
+  padding: 12px 14px;
+  border-radius: 3px;
+  margin-bottom: 24px;
+  font-size: 15px;
+  border-left: 3px solid;
+}
+
+.aviso.visible { display: block; }
+
+.aviso.ok { background: #eef4f1; border-color: var(--acento); color: #14442f; }
+.aviso.mal { background: #fbf0ee; border-color: var(--alerta); color: #7d271e; }
+
+/* ------------------------------------------------------------------ horarios */
+
+.reserva {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 48px;
+  align-items: start;
+}
+
+.agenda { border-top: 1px solid var(--borde); }
+
+.franja {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  color: var(--tinta);
+  border: 0;
+  border-bottom: 1px solid var(--borde);
+  border-radius: 0;
+  padding: 14px 4px;
+  font-family: var(--serif);
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.franja:hover:not(:disabled) { background: #f3f1ea; }
+
+.franja.elegida {
+  background: none;
+  color: var(--acento);
+  border-bottom: 2px solid var(--acento);
+}
+
+.franja:disabled {
+  background: none;
+  color: #b6b2a8;
+  border-color: var(--borde);
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+.franja .estado {
+  display: block;
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--gris);
+  text-decoration: none;
+}
+
+.resumen {
+  font-size: 14px;
+  color: var(--gris);
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--borde);
+}
+
+/* ------------------------------------------------------------------ tablero */
+
+.dato {
+  border-top: 1px solid var(--borde);
+  padding: 14px 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 15px;
+}
+
+.dato .clave { color: var(--gris); }
+
+.vacio { color: var(--gris); font-size: 15px; padding: 20px 0; }
+
+@media (max-width: 720px) {
+  .reserva { grid-template-columns: 1fr; gap: 32px; }
+  .hoja { margin: 32px auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}

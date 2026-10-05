@@ -1,0 +1,12 @@
+node_modules/
+
+# Estado local de la app (se regenera con `npm run reset`)
+data/
+
+# Material de la catedra: queda solo en la copia local
+docs/enunciado/
+
+# Artefactos de Cypress y de cobertura (las evidencias elegidas se copian a docs/evidencias)
+cypress/screenshots/
+cypress/videos/
+coverage/

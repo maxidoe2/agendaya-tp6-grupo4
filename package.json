@@ -1,0 +1,14 @@
+{
+  "name": "agendaya-tp6-grupo4",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AgendaYA - TP N6 Testing automatizado (Ingenieria y Calidad de Software - UTN FRM, Grupo 4)",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "reset": "node server/reset-db.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

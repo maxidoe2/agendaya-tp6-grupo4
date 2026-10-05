@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crear cuenta — AgendaYa</title>
+<link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+<header class="barra">
+  <div class="marca">Agenda<span>Ya</span></div>
+  <nav><a href="/">Ingresar</a></nav>
+</header>
+
+<main class="hoja">
+  <h1>Crear cuenta</h1>
+  <p class="bajada">Registrate para administrar tu agenda de turnos.</p>
+
+  <div id="aviso" class="aviso"></div>
+
+  <div class="campo" data-campo="nombre">
+    <label for="nombre">Nombre y apellido</label>
+    <input type="text" id="nombre" autocomplete="name">
+    <p class="detalle-error"></p>
+  </div>
+
+  <div class="campo" data-campo="email">
+    <label for="email">Correo electronico</label>
+    <input type="email" id="email" autocomplete="email" placeholder="nombre@ejemplo.com">
+    <p class="detalle-error"></p>
+  </div>
+
+  <div class="campo" data-campo="password">
+    <label for="password">Contrasena</label>
+    <input type="password" id="password" autocomplete="new-password">
+    <p class="detalle-error"></p>
+  </div>
+
+  <button id="botonRegistrar" class="ancho-total">Registrarse</button>
+
+  <p class="pie-formulario">Ya tenes cuenta? <a href="/">Ingresar</a></p>
+</main>
+
+<script src="comun.js"></script>
+<script>
+const boton = document.getElementById("botonRegistrar");
+
+async function registrar() {
+  limpiarErrores();
+  ocultarAviso("aviso");
+
+  const nombre = document.getElementById("nombre").value;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  boton.disabled = true;
+  const textoOriginal = boton.textContent;
+  boton.textContent = "Creando cuenta...";
+
+  const { ok, datos } = await pedir("/api/registro", { nombre, email, password });
+
+  if (ok) {
+    guardarSesion(datos.usuario);
+    window.location.href = "dashboard.html";
+    return;
+  }
+
+  // CP-004: el correo ya existe, no se crea la cuenta
+  mostrarAviso("aviso", datos.mensaje, "mal");
+  if (datos.campo) marcarError(datos.campo, datos.mensaje);
+
+  boton.disabled = false;
+  boton.textContent = textoOriginal;
+}
+
+boton.addEventListener("click", registrar);
+document.querySelectorAll("input").forEach((entrada) => {
+  entrada.addEventListener("keydown", (e) => { if (e.key === "Enter") registrar(); });
+});
+</script>
+
+</body>
+</html>

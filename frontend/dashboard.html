@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panel — AgendaYa</title>
+<link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+<header class="barra">
+  <div class="marca">Agenda<span>Ya</span></div>
+  <nav>
+    <a href="reservar.html">Reservar un turno</a>
+    <a href="#" id="salir">Cerrar sesion</a>
+  </nav>
+</header>
+
+<main class="hoja ancha">
+  <h1 id="saludo">Panel</h1>
+  <p class="bajada" id="detalleUsuario"></p>
+
+  <h2 style="font-family:Georgia,serif;font-weight:normal;font-size:20px;margin:32px 0 4px">Reservas recibidas</h2>
+  <div id="listaReservas"></div>
+</main>
+
+<script src="comun.js"></script>
+<script>
+const usuario = leerSesion();
+
+if (!usuario) {
+  window.location.href = "/";
+} else {
+  document.getElementById("saludo").textContent = "Hola, " + usuario.nombre;
+  document.getElementById("detalleUsuario").textContent =
+    usuario.email + " — " + usuario.rol;
+}
+
+document.getElementById("salir").addEventListener("click", (e) => {
+  e.preventDefault();
+  cerrarSesion();
+});
+
+async function cargarReservas() {
+  const contenedor = document.getElementById("listaReservas");
+  const respuesta = await fetch("/api/reservas");
+  const reservas = await respuesta.json();
+
+  if (!reservas.length) {
+    contenedor.innerHTML = '<p class="vacio">Todavia no hay reservas. Compartí el enlace de reserva para recibir la primera.</p>';
+    return;
+  }
+
+  contenedor.innerHTML = reservas
+    .map((r) =>
+      '<div class="dato">' +
+        '<span>' + r.horario + ' h — ' + r.nombre + '</span>' +
+        '<span class="clave">' + r.email + ' · #' + r.id + '</span>' +
+      '</div>'
+    )
+    .join("");
+}
+
+cargarReservas();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recuperar contrasena — AgendaYa</title>
+<link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+<header class="barra">
+  <div class="marca">Agenda<span>Ya</span></div>
+  <nav><a href="/">Ingresar</a></nav>
+</header>
+
+<main class="hoja">
+  <h1>Recuperar contrasena</h1>
+  <p class="bajada">Te enviamos un enlace para elegir una contrasena nueva.</p>
+
+  <div id="aviso" class="aviso"></div>
+
+  <div class="campo" data-campo="email">
+    <label for="email">Correo electronico</label>
+    <input type="email" id="email" autocomplete="email" placeholder="nombre@ejemplo.com">
+    <p class="detalle-error"></p>
+  </div>
+
+  <button id="botonEnviar" class="ancho-total">Enviar el enlace de recuperacion</button>
+
+  <p class="pie-formulario"><a href="/">Volver a ingresar</a></p>
+</main>
+
+<script src="comun.js"></script>
+<script>
+const boton = document.getElementById("botonEnviar");
+
+async function enviar() {
+  limpiarErrores();
+  ocultarAviso("aviso");
+
+  const email = document.getElementById("email").value;
+
+  boton.disabled = true;
+  const textoOriginal = boton.textContent;
+  boton.textContent = "Enviando...";
+
+  const { ok, datos } = await pedir("/api/recuperar", { email });
+
+  if (ok) {
+    // CP-005: confirmacion en pantalla; el correo queda en la consola del
+    // servidor y en data/correos.log para que el tester lo verifique
+    mostrarAviso("aviso", datos.mensaje, "ok");
+  } else {
+    // CP-006: el correo no esta registrado
+    mostrarAviso("aviso", datos.mensaje, "mal");
+    if (datos.campo) marcarError(datos.campo, "");
+  }
+
+  boton.disabled = false;
+  boton.textContent = textoOriginal;
+}
+
+boton.addEventListener("click", enviar);
+document.getElementById("email").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") enviar();
+});
+</script>
+
+</body>
+</html>

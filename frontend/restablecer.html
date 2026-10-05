@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nueva contrasena — AgendaYa</title>
+<link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+<header class="barra">
+  <div class="marca">Agenda<span>Ya</span></div>
+  <nav><a href="/">Ingresar</a></nav>
+</header>
+
+<main class="hoja">
+  <h1>Elegi una contrasena nueva</h1>
+  <p class="bajada">Vas a usarla la proxima vez que ingreses.</p>
+
+  <div id="aviso" class="aviso"></div>
+
+  <div class="campo" data-campo="password">
+    <label for="password">Contrasena nueva</label>
+    <input type="password" id="password" autocomplete="new-password">
+    <p class="detalle-error"></p>
+  </div>
+
+  <button id="botonGuardar" class="ancho-total">Guardar contrasena</button>
+</main>
+
+<script src="comun.js"></script>
+<script>
+const token = new URLSearchParams(window.location.search).get("token") || "";
+const boton = document.getElementById("botonGuardar");
+
+if (!token) {
+  mostrarAviso("aviso", "Abri el enlace que te enviamos por correo.", "mal");
+  boton.disabled = true;
+}
+
+boton.addEventListener("click", async () => {
+  limpiarErrores();
+  ocultarAviso("aviso");
+
+  boton.disabled = true;
+  boton.textContent = "Guardando...";
+
+  const { ok, datos } = await pedir("/api/restablecer", {
+    token,
+    password: document.getElementById("password").value,
+  });
+
+  if (ok) {
+    mostrarAviso("aviso", datos.mensaje, "ok");
+    boton.textContent = "Contrasena guardada";
+    return;
+  }
+
+  mostrarAviso("aviso", datos.mensaje, "mal");
+  if (datos.campo) marcarError(datos.campo, datos.mensaje);
+  boton.disabled = false;
+  boton.textContent = "Guardar contrasena";
+});
+</script>
+
+</body>
+</html>

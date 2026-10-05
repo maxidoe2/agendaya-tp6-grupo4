@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reservar un turno — AgendaYa</title>
+<link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+<header class="barra">
+  <div class="marca">Agenda<span>Ya</span></div>
+  <nav><a href="/">Ingresar</a></nav>
+</header>
+
+<main class="hoja ancha">
+  <h1>Reservar un turno</h1>
+  <p class="bajada">Eligi un horario y dejanos tus datos.</p>
+
+  <div id="aviso" class="aviso"></div>
+
+  <div class="reserva">
+    <div>
+      <div class="agenda" id="agenda"></div>
+    </div>
+
+    <div>
+      <p class="resumen" id="resumen">Todavia no elegiste un horario.</p>
+
+      <div class="campo" data-campo="nombre">
+        <label for="nombre">Nombre completo</label>
+        <input type="text" id="nombre" autocomplete="name">
+        <p class="detalle-error"></p>
+      </div>
+
+      <div class="campo" data-campo="email">
+        <label for="email">Correo electronico</label>
+        <input type="email" id="email" autocomplete="email" placeholder="nombre@ejemplo.com">
+        <p class="detalle-error"></p>
+      </div>
+
+      <div class="campo" data-campo="telefono">
+        <label for="telefono">Telefono <span class="opcional">(opcional)</span></label>
+        <input type="tel" id="telefono" autocomplete="tel">
+        <p class="detalle-error"></p>
+      </div>
+
+      <div class="campo" data-campo="nota">
+        <label for="nota">Nota para el anfitrion <span class="opcional">(opcional)</span></label>
+        <textarea id="nota"></textarea>
+        <p class="detalle-error"></p>
+      </div>
+
+      <button id="botonConfirmar" class="ancho-total">Confirmar Reserva</button>
+    </div>
+  </div>
+</main>
+
+<script src="comun.js"></script>
+<script>
+const boton = document.getElementById("botonConfirmar");
+let horarioElegido = null;
+
+/**
+ * Bandera de envio en curso.
+ *
+ * CP-009 y CP-010: el atributo disabled del boton por si solo no alcanza,
+ * porque entre dos clicks muy rapidos el navegador puede despachar el segundo
+ * evento antes de que el DOM se repinte. Esta bandera se evalua de forma
+ * sincronica en la primera linea del manejador, de modo que cualquier click
+ * posterior al primero se descarta sin llegar a la peticion.
+ */
+let enviando = false;
+
+async function cargarHorarios() {
+  const agenda = document.getElementById("agenda");
+  const respuesta = await fetch("/api/horarios");
+  const franjas = await respuesta.json();
+
+  agenda.innerHTML = "";
+  franjas.forEach((f) => {
+    const hora = f.horario.split(" ")[1];
+    const boton = document.createElement("button");
+    boton.className = "franja";
+    boton.disabled = !f.disponible;
+    boton.innerHTML = hora + '<span class="estado">' +
+      (f.disponible ? "15 de septiembre" : "ya reservado") + "</span>";
+    boton.addEventListener("click", () => elegir(f.horario, boton));
+    agenda.appendChild(boton);
+  });
+}
+
+function elegir(horario, elemento) {
+  horarioElegido = horario;
+  document.querySelectorAll(".franja").forEach((f) => f.classList.remove("elegida"));
+  elemento.classList.add("elegida");
+  document.getElementById("resumen").textContent = "Turno elegido: " + horario + " h";
+  limpiarErrores();
+  ocultarAviso("aviso");
+}
+
+async function confirmar() {
+  // CP-010: se ignora todo click posterior mientras haya un envio en curso
+  if (enviando) return;
+
+  limpiarErrores();
+  ocultarAviso("aviso");
+
+  if (!horarioElegido) {
+    mostrarAviso("aviso", "Eligi primero un horario de la agenda.", "mal");
+    return;
+  }
+
+  const nombre = document.getElementById("nombre").value.trim();
+  const email = document.getElementById("email").value.trim();
+
+  // CP-008: validacion en el cliente, no se envia el formulario incompleto
+  if (!nombre) {
+    marcarError("nombre", "Ingresa tu nombre completo.");
+    return;
+  }
+  if (!email) {
+    marcarError("email", "Ingresa tu correo electronico para confirmar la reserva.");
+    return;
+  }
+
+  // CP-009: el boton queda inutilizable y comunica que esta procesando
+  enviando = true;
+  boton.disabled = true;
+  boton.textContent = "Procesando reserva...";
+
+  const { ok, datos } = await pedir("/api/reservas", {
+    nombre,
+    email,
+    telefono: document.getElementById("telefono").value,
+    nota: document.getElementById("nota").value,
+    horario: horarioElegido,
+  });
+
+  if (ok) {
+    mostrarAviso(
+      "aviso",
+      "Reserva confirmada para el " + datos.reserva.horario + " h. Te enviamos la confirmacion por correo.",
+      "ok"
+    );
+    boton.textContent = "Reserva confirmada";
+    await cargarHorarios();
+    horarioElegido = null;
+    document.getElementById("resumen").textContent = "Codigo de reserva: #" + datos.reserva.id;
+    return; // el boton queda bloqueado: la reserva ya se registro
+  }
+
+  mostrarAviso("aviso", datos.mensaje, "mal");
+  if (datos.campo) marcarError(datos.campo, datos.mensaje);
+
+  enviando = false;
+  boton.disabled = false;
+  boton.textContent = "Confirmar Reserva";
+}
+
+boton.addEventListener("click", confirmar);
+cargarHorarios();
+</script>
+
+</body>
+</html>

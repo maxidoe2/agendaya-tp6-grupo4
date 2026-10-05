@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ingresar — AgendaYa</title>
+<link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+<header class="barra">
+  <div class="marca">Agenda<span>Ya</span></div>
+  <nav><a href="reservar.html">Reservar un turno</a></nav>
+</header>
+
+<main class="hoja">
+  <h1>Ingresar</h1>
+  <p class="bajada">Accede al panel para administrar tu agenda.</p>
+
+  <div id="aviso" class="aviso"></div>
+
+  <div class="campo" data-campo="email">
+    <label for="email">Usuario</label>
+    <input type="email" id="email" autocomplete="username" placeholder="nombre@ejemplo.com">
+    <p class="detalle-error"></p>
+  </div>
+
+  <div class="campo" data-campo="password">
+    <label for="password">Contrasena</label>
+    <input type="password" id="password" autocomplete="current-password">
+    <p class="detalle-error"></p>
+  </div>
+
+  <button id="botonIngresar" class="ancho-total">Ingresar</button>
+
+  <p class="pie-formulario">
+    <a href="recuperar.html">Olvidaste tu contrasena?</a><br>
+    No tenes cuenta? <a href="registro.html">Crear una</a>
+  </p>
+</main>
+
+<script src="comun.js"></script>
+<script>
+const boton = document.getElementById("botonIngresar");
+
+async function ingresar() {
+  limpiarErrores();
+  ocultarAviso("aviso");
+
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  boton.disabled = true;
+  const textoOriginal = boton.textContent;
+  boton.textContent = "Verificando...";
+
+  const { ok, datos } = await pedir("/api/login", { email, password });
+
+  if (ok) {
+    guardarSesion(datos.usuario);
+    window.location.href = "dashboard.html";
+    return;
+  }
+
+  // CP-002: se informa el error y se limpia el campo de contrasena por seguridad
+  document.getElementById("password").value = "";
+  mostrarAviso("aviso", datos.mensaje, "mal");
+  if (datos.campo) marcarError(datos.campo, "");
+
+  boton.disabled = false;
+  boton.textContent = textoOriginal;
+}
+
+boton.addEventListener("click", ingresar);
+document.querySelectorAll("input").forEach((entrada) => {
+  entrada.addEventListener("keydown", (e) => { if (e.key === "Enter") ingresar(); });
+});
+</script>
+
+</body>
+</html>
