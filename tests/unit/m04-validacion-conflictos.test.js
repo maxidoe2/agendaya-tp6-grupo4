@@ -1,6 +1,6 @@
 /**
  * M04 - Datos obligatorios de la reserva y conflictos de turno
- * Responsable: Martinez Fernando
+ * Responsable: Estudillo Maximo
  * Funciones: validarDatosReserva, detectarConflicto, evaluarReserva
  */
 const {

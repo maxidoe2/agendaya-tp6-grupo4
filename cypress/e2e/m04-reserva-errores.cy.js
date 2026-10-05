@@ -2,7 +2,7 @@
  * M04 - Booking publico | Variantes de error del flujo de reserva:
  *   - por estado del sistema: horario no disponible (flujo opcional del modulo)
  *   - por datos invalidos: falta el correo electronico
- * Responsable: Martinez Fernando
+ * Responsable: Estudillo Maximo
  * Trazabilidad: AYA-M04-RF-03 y AYA-M04-RF-05 / CP-008 / enunciado 3.1
  */
 import { proximoDiaHabil, proximoSabado } from "../support/fechas";

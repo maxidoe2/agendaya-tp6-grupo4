@@ -1,6 +1,6 @@
 /**
  * M01 - Contrasenas con hash y enlace de recuperacion
- * Responsable: Garcia Joaquin
+ * Responsable: Barchiesi Santino
  * Funciones: hashearPassword, verificarPassword, crearTokenRecuperacion, tokenVigente
  */
 const {

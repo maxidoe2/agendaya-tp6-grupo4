@@ -1,9 +1,9 @@
 /**
  * M04 - Calculo de turnos y antelacion minima
  * Responsable: Navarro Matias
- * Funciones: calcularSlots, cumpleAntelacion, esDiaHabil
+ * Funciones: calcularSlots, cumpleAntelacion, esDiaHabil, agendaDelDia
  */
-const { calcularSlots, cumpleAntelacion, esDiaHabil } = require("../../src/logica/reservas");
+const { calcularSlots, cumpleAntelacion, esDiaHabil, agendaDelDia } = require("../../src/logica/reservas");
 
 describe("calcularSlots", () => {
   it("genera un turno por hora entre el inicio y el fin (caso normal)", () => {
@@ -56,5 +56,42 @@ describe("esDiaHabil", () => {
   it("un dia bloqueado por el administrador o una fecha imposible no son habiles", () => {
     expect(esDiaHabil("2026-10-12", config)).toBe(false); // lunes bloqueado
     expect(esDiaHabil("2026-02-30", config)).toBe(false); // no existe
+  });
+});
+
+// Agregado tras la revision critica: el reporte de cobertura mostraba que
+// agendaDelDia (la funcion que combina todas las reglas anteriores) no tenia
+// tests unitarios y solo quedaba cubierta por los E2E.
+describe("agendaDelDia", () => {
+  const config = {
+    diasHabiles: [1, 2, 3, 4, 5],
+    inicio: "09:00",
+    fin: "13:00",
+    duracionMin: 60,
+    antelacionMinHoras: 2,
+    diasBloqueados: [],
+  };
+  const ahora = new Date(2026, 9, 12, 9, 30); // lunes 12/10/2026 09:30
+
+  it("marca cada turno de hoy con el motivo por el que no se puede tomar", () => {
+    const reservas = [{ fecha: "2026-10-12", hora: "12:00", email: "x@y.com", estado: "Confirmada" }];
+    expect(agendaDelDia("2026-10-12", reservas, ahora, config)).toEqual({
+      fecha: "2026-10-12",
+      habil: true,
+      slots: [
+        { hora: "09:00", disponible: false, motivo: "pasado" },
+        { hora: "10:00", disponible: false, motivo: "antelacion" },
+        { hora: "11:00", disponible: false, motivo: "antelacion" },
+        { hora: "12:00", disponible: false, motivo: "ocupado" },
+      ],
+    });
+  });
+
+  it("un dia no habil no ofrece turnos", () => {
+    expect(agendaDelDia("2026-10-17", [], ahora, config)).toEqual({
+      fecha: "2026-10-17",
+      habil: false,
+      slots: [],
+    });
   });
 });

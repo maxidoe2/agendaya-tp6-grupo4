@@ -1,6 +1,6 @@
 /**
  * M01 - Autenticacion | Flujo obligatorio: Login y logout
- * Responsable: Garcia Joaquin
+ * Responsable: Barchiesi Santino
  * Trazabilidad: AYA-M01-RF-04 / CP-001 y CP-002
  */
 describe("AgendaYA - M01 Autenticacion: login y logout", () => {
