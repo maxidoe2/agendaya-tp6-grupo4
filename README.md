@@ -5,8 +5,8 @@ Grupo 4), sobre los módulos **M01 (Autenticación)** y **M04 (Booking público)
 del sistema AgendaYA. Parte de la aplicación construida en el
 [TP5](https://github.com/maxidoe2/agendaya-tp5-grupo4).
 
-**Integrantes:** Barchiesi Santino (50791), Estudillo Máximo (50013), García
-Joaquín (50914), Navarro Matías (51006) y Martinez Fernando (51192).
+**Integrantes:** Barchiesi Santino (50791), Estudillo Máximo (50013) y Navarro
+Matías (51006).
 
 | Entregable | Dónde |
 |---|---|
@@ -15,7 +15,7 @@ Joaquín (50914), Navarro Matías (51006) y Martinez Fernando (51192).
 | Tests unitarios con Jest (Tarea C) | [`tests/unit/`](tests/unit) sobre [`src/logica/`](src/logica) y [`server/seguridad.js`](server/seguridad.js) |
 | Uso de IA documentado | [`docs/ia/USO-DE-IA.md`](docs/ia/USO-DE-IA.md) |
 | Evidencias de ejecución | [`docs/evidencias/`](docs/evidencias) |
-| Borrador del informe | [`docs/informe/INFORME-TP6.md`](docs/informe/INFORME-TP6.md) |
+| Informe | [`docs/informe/`](docs/informe) |
 
 ## Requisitos
 
@@ -56,6 +56,9 @@ que borra las reservas y cuentas creadas a mano.
 Las capturas quedan en `cypress/screenshots/` (una por test, con el log de
 comandos) y los videos en `cypress/videos/`.
 
+Las capturas de pantallas del informe se regeneran con el servidor levantado y
+`npx cypress run --config specPattern=cypress/capturas/*.cy.js`.
+
 ## Estructura
 
 ```
@@ -67,19 +70,20 @@ src/logica/          Lógica de negocio pura, compartida por navegador, servidor
   reservas.js        M04: slots, día hábil, antelación, conflictos, validación
 tests/unit/          Tests unitarios (un archivo por integrante)
 cypress/e2e/         Tests E2E (un archivo por integrante)
-cypress/support/     Reinicio de la base y captura antes/después de cada test
+cypress/support/     Reinicio de la base y captura al final de cada test
+cypress/capturas/    Genera las capturas de pantalla del informe (no es un test)
 docs/                Uso de IA, evidencias e informe
 ```
 
 ## Responsabilidades individuales
 
-| Integrante | Test E2E (`cypress/e2e/`) | Tests unitarios (`tests/unit/`) |
+| Integrante | Tests E2E (`cypress/e2e/`) | Tests unitarios (`tests/unit/`) |
 |---|---|---|
-| Barchiesi Santino | `m01-registro-exitoso` — registro (happy path) | `m01-email` — `normalizarEmail`, `esEmailValido`, `validarLogin` (8) |
-| Estudillo Máximo | `m01-registro-errores` — formulario vacío y correo ya registrado | `m01-password-registro` — `evaluarPassword`, `validarRegistro` (8) |
-| García Joaquín | `m01-login-logout` — login + logout + panel protegido; contraseña incorrecta | `m01-seguridad` — hash/verificación, token de recuperación (8) |
-| Navarro Matías | `m04-reserva-exitosa` — fecha, hora y confirmación; clicks múltiples | `m04-slots-antelacion` — `calcularSlots`, `cumpleAntelacion`, `esDiaHabil` (9) |
-| Martinez Fernando | `m04-reserva-errores` — horario no disponible, falta el correo, día no hábil | `m04-validacion-conflictos` — `validarDatosReserva`, `detectarConflicto`, `evaluarReserva` (10) |
+| Barchiesi Santino | `m01-registro-exitoso` — registro (happy path) · `m01-login-logout` — login + logout + panel protegido; contraseña incorrecta | `m01-email` — `normalizarEmail`, `esEmailValido`, `validarLogin` (8) · `m01-seguridad` — hash/verificación y token de recuperación (8) |
+| Estudillo Máximo | `m01-registro-errores` — formulario vacío y correo ya registrado · `m04-reserva-errores` — horario no disponible, falta el correo, día no hábil | `m01-password-registro` — `evaluarPassword`, `validarRegistro` (8) · `m04-validacion-conflictos` — `validarDatosReserva`, `detectarConflicto`, `evaluarReserva` (10) |
+| Navarro Matías | `m04-reserva-exitosa` — fecha, hora y confirmación; clicks múltiples | `m04-slots-antelacion` — `calcularSlots`, `cumpleAntelacion`, `esDiaHabil`, `agendaDelDia` (11) |
+
+Total: 10 tests E2E y 45 tests unitarios.
 
 ## Flujos implementados (Tarea A)
 
