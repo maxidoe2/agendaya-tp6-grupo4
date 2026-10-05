@@ -3,66 +3,68 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Recuperar contrasena — AgendaYa</title>
+<title>Recuperar contraseña — AgendaYA</title>
 <link rel="stylesheet" href="estilos.css">
 </head>
 <body>
 
 <header class="barra">
-  <div class="marca">Agenda<span>Ya</span></div>
-  <nav><a href="/">Ingresar</a></nav>
+  <div class="marca">Agenda<span>YA</span></div>
+  <nav><a href="/" data-cy="nav-ingresar">Ingresar</a></nav>
 </header>
 
 <main class="hoja">
-  <h1>Recuperar contrasena</h1>
-  <p class="bajada">Te enviamos un enlace para elegir una contrasena nueva.</p>
+  <h1>Recuperar contraseña</h1>
+  <p class="bajada">Te enviamos un enlace para elegir una contraseña nueva.</p>
 
-  <div id="aviso" class="aviso"></div>
+  <div class="aviso mal" data-cy="alerta-error" role="alert" hidden></div>
+  <div class="aviso ok" data-cy="alerta-exito" role="status" hidden></div>
 
-  <div class="campo" data-campo="email">
-    <label for="email">Correo electronico</label>
-    <input type="email" id="email" autocomplete="email" placeholder="nombre@ejemplo.com">
-    <p class="detalle-error"></p>
-  </div>
+  <form data-cy="recuperar-form" novalidate>
+    <div class="campo" data-campo="email">
+      <label for="email">Correo electrónico</label>
+      <input type="email" id="email" data-cy="email-input" autocomplete="email" placeholder="nombre@ejemplo.com">
+      <p class="detalle-error" data-cy="error-email"></p>
+    </div>
 
-  <button id="botonEnviar" class="ancho-total">Enviar el enlace de recuperacion</button>
+    <button type="submit" id="botonEnviar" data-cy="recuperar-button" class="ancho-total">Enviar el enlace de recuperación</button>
+  </form>
 
-  <p class="pie-formulario"><a href="/">Volver a ingresar</a></p>
+  <p class="pie-formulario"><a href="/" data-cy="link-login">Volver a ingresar</a></p>
 </main>
 
+<script src="logica/validaciones.js"></script>
 <script src="comun.js"></script>
 <script>
 const boton = document.getElementById("botonEnviar");
 
-async function enviar() {
+document.querySelector('[data-cy="recuperar-form"]').addEventListener("submit", async (e) => {
+  e.preventDefault();
   limpiarErrores();
-  ocultarAviso("aviso");
+  ocultarAvisos();
 
   const email = document.getElementById("email").value;
+  if (!AgendaValidaciones.normalizarEmail(email)) {
+    marcarError("email", "Ingresa tu correo electronico.");
+    return;
+  }
 
   boton.disabled = true;
-  const textoOriginal = boton.textContent;
   boton.textContent = "Enviando...";
 
   const { ok, datos } = await pedir("/api/recuperar", { email });
 
   if (ok) {
-    // CP-005: confirmacion en pantalla; el correo queda en la consola del
-    // servidor y en data/correos.log para que el tester lo verifique
-    mostrarAviso("aviso", datos.mensaje, "ok");
+    // CP-005: el correo queda en la consola del servidor y en data/correos.log
+    mostrarExito(datos.mensaje);
   } else {
     // CP-006: el correo no esta registrado
-    mostrarAviso("aviso", datos.mensaje, "mal");
-    if (datos.campo) marcarError(datos.campo, "");
+    mostrarError(datos.mensaje);
+    if (datos.campo) marcarError(datos.campo, datos.mensaje);
   }
 
   boton.disabled = false;
-  boton.textContent = textoOriginal;
-}
-
-boton.addEventListener("click", enviar);
-document.getElementById("email").addEventListener("keydown", (e) => {
-  if (e.key === "Enter") enviar();
+  boton.textContent = "Enviar el enlace de recuperación";
 });
 </script>
 

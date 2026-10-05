@@ -97,6 +97,8 @@ h1 {
 
 .campo textarea { min-height: 84px; resize: vertical; }
 
+.ayuda { color: var(--gris); font-size: 13px; margin: 6px 0 0; }
+
 .opcional { color: var(--gris); font-size: 13px; }
 
 /* estado de error: se resalta el campo y se explica que falta (CP-008) */
@@ -138,6 +140,19 @@ button:disabled {
 
 .ancho-total { width: 100%; }
 
+/* boton con aspecto de enlace (cerrar sesion en la barra) */
+button.enlace {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin-left: 18px;
+  color: var(--acento);
+  text-decoration: underline;
+  font-size: 14px;
+}
+
+button.enlace:hover:not(:disabled) { background: none; }
+
 .pie-formulario {
   margin-top: 24px;
   font-size: 14px;
@@ -147,7 +162,7 @@ button:disabled {
 /* ------------------------------------------------------------------ mensajes */
 
 .aviso {
-  display: none;
+  display: block;
   padding: 12px 14px;
   border-radius: 3px;
   margin-bottom: 24px;
@@ -155,7 +170,7 @@ button:disabled {
   border-left: 3px solid;
 }
 
-.aviso.visible { display: block; }
+[hidden] { display: none !important; }
 
 .aviso.ok { background: #eef4f1; border-color: var(--acento); color: #14442f; }
 .aviso.mal { background: #fbf0ee; border-color: var(--alerta); color: #7d271e; }
@@ -216,6 +231,24 @@ button:disabled {
   margin-bottom: 24px;
   padding-bottom: 16px;
   border-bottom: 1px solid var(--borde);
+}
+
+/* confirmacion de la reserva */
+.confirmacion {
+  border: 1px solid var(--acento);
+  background: #eef4f1;
+  border-radius: 3px;
+  padding: 16px 20px;
+  margin-bottom: 32px;
+}
+
+.confirmacion h2 { margin: 0 0 8px; color: #14442f; }
+
+h2 {
+  font-family: var(--serif);
+  font-weight: normal;
+  font-size: 20px;
+  margin: 32px 0 8px;
 }
 
 /* ------------------------------------------------------------------ tablero */

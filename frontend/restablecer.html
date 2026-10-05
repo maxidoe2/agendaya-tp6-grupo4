@@ -3,63 +3,73 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Nueva contrasena — AgendaYa</title>
+<title>Nueva contraseña — AgendaYA</title>
 <link rel="stylesheet" href="estilos.css">
 </head>
 <body>
 
 <header class="barra">
-  <div class="marca">Agenda<span>Ya</span></div>
-  <nav><a href="/">Ingresar</a></nav>
+  <div class="marca">Agenda<span>YA</span></div>
+  <nav><a href="/" data-cy="nav-ingresar">Ingresar</a></nav>
 </header>
 
 <main class="hoja">
-  <h1>Elegi una contrasena nueva</h1>
-  <p class="bajada">Vas a usarla la proxima vez que ingreses.</p>
+  <h1>Elegí una contraseña nueva</h1>
+  <p class="bajada">Vas a usarla la próxima vez que ingreses.</p>
 
-  <div id="aviso" class="aviso"></div>
+  <div class="aviso mal" data-cy="alerta-error" role="alert" hidden></div>
+  <div class="aviso ok" data-cy="alerta-exito" role="status" hidden></div>
 
-  <div class="campo" data-campo="password">
-    <label for="password">Contrasena nueva</label>
-    <input type="password" id="password" autocomplete="new-password">
-    <p class="detalle-error"></p>
-  </div>
+  <form data-cy="restablecer-form" novalidate>
+    <div class="campo" data-campo="password">
+      <label for="password">Contraseña nueva</label>
+      <input type="password" id="password" data-cy="password-input" autocomplete="new-password">
+      <p class="ayuda">Mínimo 8 caracteres, con al menos una mayúscula, una minúscula y un número.</p>
+      <p class="detalle-error" data-cy="error-password"></p>
+    </div>
 
-  <button id="botonGuardar" class="ancho-total">Guardar contrasena</button>
+    <button type="submit" id="botonGuardar" data-cy="restablecer-button" class="ancho-total">Guardar contraseña</button>
+  </form>
 </main>
 
+<script src="logica/validaciones.js"></script>
 <script src="comun.js"></script>
 <script>
 const token = new URLSearchParams(window.location.search).get("token") || "";
 const boton = document.getElementById("botonGuardar");
 
 if (!token) {
-  mostrarAviso("aviso", "Abri el enlace que te enviamos por correo.", "mal");
+  mostrarError("Abrí el enlace que te enviamos por correo.");
   boton.disabled = true;
 }
 
-boton.addEventListener("click", async () => {
+document.querySelector('[data-cy="restablecer-form"]').addEventListener("submit", async (e) => {
+  e.preventDefault();
   limpiarErrores();
-  ocultarAviso("aviso");
+  ocultarAvisos();
+
+  const password = document.getElementById("password").value;
+  const evaluacion = AgendaValidaciones.evaluarPassword(password);
+  if (!evaluacion.valida) {
+    marcarError("password", "La contrasena no es segura. " + evaluacion.errores.join(" "));
+    return;
+  }
 
   boton.disabled = true;
   boton.textContent = "Guardando...";
 
-  const { ok, datos } = await pedir("/api/restablecer", {
-    token,
-    password: document.getElementById("password").value,
-  });
+  const { ok, datos } = await pedir("/api/restablecer", { token, password });
 
   if (ok) {
-    mostrarAviso("aviso", datos.mensaje, "ok");
-    boton.textContent = "Contrasena guardada";
+    mostrarExito(datos.mensaje);
+    boton.textContent = "Contraseña guardada";
     return;
   }
 
-  mostrarAviso("aviso", datos.mensaje, "mal");
+  mostrarError(datos.mensaje);
   if (datos.campo) marcarError(datos.campo, datos.mensaje);
   boton.disabled = false;
-  boton.textContent = "Guardar contrasena";
+  boton.textContent = "Guardar contraseña";
 });
 </script>
 

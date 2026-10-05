@@ -3,65 +3,76 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Panel — AgendaYa</title>
+<title>Panel — AgendaYA</title>
 <link rel="stylesheet" href="estilos.css">
 </head>
 <body>
 
 <header class="barra">
-  <div class="marca">Agenda<span>Ya</span></div>
+  <div class="marca">Agenda<span>YA</span></div>
   <nav>
-    <a href="reservar.html">Reservar un turno</a>
-    <a href="#" id="salir">Cerrar sesion</a>
+    <a href="reservar.html" data-cy="nav-reservar">Reservar un turno</a>
+    <button type="button" class="enlace" data-cy="logout-button">Cerrar sesión</button>
   </nav>
 </header>
 
 <main class="hoja ancha">
-  <h1 id="saludo">Panel</h1>
-  <p class="bajada" id="detalleUsuario"></p>
+  <div class="aviso ok" data-cy="alerta-exito" role="status" hidden></div>
 
-  <h2 style="font-family:Georgia,serif;font-weight:normal;font-size:20px;margin:32px 0 4px">Reservas recibidas</h2>
-  <div id="listaReservas"></div>
+  <h1 data-cy="dashboard-welcome">Panel</h1>
+  <p class="bajada" data-cy="usuario-email"></p>
+
+  <h2>Reservas recibidas</h2>
+  <div data-cy="lista-reservas"></div>
 </main>
 
 <script src="comun.js"></script>
 <script>
 const usuario = leerSesion();
 
+// Sin sesion no se puede ver el panel: vuelve al login
 if (!usuario) {
-  window.location.href = "/";
+  window.location.replace("/");
 } else {
-  document.getElementById("saludo").textContent = "Hola, " + usuario.nombre;
-  document.getElementById("detalleUsuario").textContent =
-    usuario.email + " — " + usuario.rol;
+  document.querySelector('[data-cy="dashboard-welcome"]').textContent = "Hola, " + usuario.nombre;
+  document.querySelector('[data-cy="usuario-email"]').textContent = usuario.email + " — " + usuario.rol;
+  if (new URLSearchParams(location.search).get("bienvenida")) {
+    mostrarExito("Tu cuenta fue creada correctamente.");
+  }
+  cargarReservas();
 }
 
-document.getElementById("salir").addEventListener("click", (e) => {
-  e.preventDefault();
-  cerrarSesion();
-});
+document.querySelector('[data-cy="logout-button"]').addEventListener("click", cerrarSesion);
 
 async function cargarReservas() {
-  const contenedor = document.getElementById("listaReservas");
-  const respuesta = await fetch("/api/reservas");
-  const reservas = await respuesta.json();
+  const contenedor = document.querySelector('[data-cy="lista-reservas"]');
+  const reservas = await (await fetch("/api/reservas")).json();
 
+  contenedor.innerHTML = "";
   if (!reservas.length) {
-    contenedor.innerHTML = '<p class="vacio">Todavia no hay reservas. Compartí el enlace de reserva para recibir la primera.</p>';
+    const vacio = document.createElement("p");
+    vacio.className = "vacio";
+    vacio.dataset.cy = "sin-reservas";
+    vacio.textContent = "Todavía no hay reservas. Compartí el enlace de reserva para recibir la primera.";
+    contenedor.appendChild(vacio);
     return;
   }
 
-  contenedor.innerHTML = reservas
-    .map((r) =>
-      '<div class="dato">' +
-        '<span>' + r.horario + ' h — ' + r.nombre + '</span>' +
-        '<span class="clave">' + r.email + ' · #' + r.id + '</span>' +
-      '</div>'
-    )
-    .join("");
+  // Se arma con textContent: los datos los escribe el invitado y no deben
+  // interpretarse como HTML (en el TP5 se usaba innerHTML)
+  reservas.forEach((r) => {
+    const fila = document.createElement("div");
+    fila.className = "dato";
+    fila.dataset.cy = "reserva-item";
+    const izquierda = document.createElement("span");
+    izquierda.textContent = r.fecha + " " + r.hora + " h — " + r.nombre;
+    const derecha = document.createElement("span");
+    derecha.className = "clave";
+    derecha.textContent = r.email + " · #" + r.id + " · " + r.estado;
+    fila.append(izquierda, derecha);
+    contenedor.appendChild(fila);
+  });
 }
-
-cargarReservas();
 </script>
 
 </body>

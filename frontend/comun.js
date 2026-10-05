@@ -1,32 +1,47 @@
 /**
- * Utilidades compartidas por las pantallas de AgendaYa.
+ * Utilidades compartidas por las pantallas de AgendaYA.
+ *
+ * Convencion para los tests E2E: cada pantalla tiene
+ *   [data-cy="alerta-error"]  mensaje general de error
+ *   [data-cy="alerta-exito"]  mensaje general de confirmacion
+ *   [data-cy="error-<campo>"] explicacion debajo de cada campo con error
  */
 
-function mostrarAviso(id, texto, tipo) {
-  const caja = document.getElementById(id);
+function mostrarError(texto) {
+  ocultarAvisos();
+  const caja = document.querySelector('[data-cy="alerta-error"]');
   caja.textContent = texto;
-  caja.className = "aviso visible " + (tipo === "ok" ? "ok" : "mal");
+  caja.hidden = false;
 }
 
-function ocultarAviso(id) {
-  const caja = document.getElementById(id);
-  caja.className = "aviso";
-  caja.textContent = "";
+function mostrarExito(texto) {
+  ocultarAvisos();
+  const caja = document.querySelector('[data-cy="alerta-exito"]');
+  caja.textContent = texto;
+  caja.hidden = false;
 }
 
-/** Marca un campo como erroneo y muestra la explicacion debajo (CP-008). */
-function marcarError(nombreCampo, mensaje) {
-  const contenedor = document.querySelector('[data-campo="' + nombreCampo + '"]');
+function ocultarAvisos() {
+  document.querySelectorAll('[data-cy="alerta-error"], [data-cy="alerta-exito"]').forEach((caja) => {
+    caja.hidden = true;
+    caja.textContent = "";
+  });
+}
+
+/** Resalta el campo y muestra el motivo debajo. Siempre con un texto visible. */
+function marcarError(campo, mensaje) {
+  const contenedor = document.querySelector('[data-campo="' + campo + '"]');
   if (!contenedor) return;
   contenedor.classList.add("error");
-  const detalle = contenedor.querySelector(".detalle-error");
-  if (detalle && mensaje) detalle.textContent = mensaje;
+  const detalle = contenedor.querySelector('[data-cy="error-' + campo + '"]');
+  if (detalle) detalle.textContent = mensaje;
   const entrada = contenedor.querySelector("input, textarea");
   if (entrada) entrada.focus();
 }
 
 function limpiarErrores() {
   document.querySelectorAll(".campo.error").forEach((c) => c.classList.remove("error"));
+  document.querySelectorAll('[data-cy^="error-"]').forEach((d) => (d.textContent = ""));
 }
 
 async function pedir(url, cuerpo) {
@@ -39,19 +54,21 @@ async function pedir(url, cuerpo) {
   return { ok: respuesta.ok, estado: respuesta.status, datos };
 }
 
+// ------------------------------------------------------------------- sesion
+
+const CLAVE_SESION = "agendaya:usuario";
+
 function guardarSesion(usuario) {
-  window.__usuario = usuario;
   try {
-    sessionStorage.setItem("agendaya:usuario", JSON.stringify(usuario));
+    sessionStorage.setItem(CLAVE_SESION, JSON.stringify(usuario));
   } catch (e) {
-    /* sin almacenamiento disponible, la sesion vive solo en memoria */
+    /* sin almacenamiento disponible no hay sesion persistente */
   }
 }
 
 function leerSesion() {
-  if (window.__usuario) return window.__usuario;
   try {
-    const crudo = sessionStorage.getItem("agendaya:usuario");
+    const crudo = sessionStorage.getItem(CLAVE_SESION);
     return crudo ? JSON.parse(crudo) : null;
   } catch (e) {
     return null;
@@ -59,11 +76,10 @@ function leerSesion() {
 }
 
 function cerrarSesion() {
-  window.__usuario = null;
   try {
-    sessionStorage.removeItem("agendaya:usuario");
+    sessionStorage.removeItem(CLAVE_SESION);
   } catch (e) {
     /* nada que limpiar */
   }
-  window.location.href = "/";
+  window.location.href = "/?sesion=cerrada";
 }
