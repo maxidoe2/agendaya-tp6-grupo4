@@ -9,7 +9,7 @@
 
 const fs = require("fs");
 const path = require("path");
-const crypto = require("crypto");
+const { hashearPassword } = require("./seguridad");
 
 const ARCHIVO = path.join(__dirname, "..", "data", "db.json");
 
@@ -36,12 +36,6 @@ const SEMILLA = {
   tokensRecuperacion: [],
 };
 
-function hashear(password) {
-  const salt = crypto.randomBytes(16).toString("hex");
-  const hash = crypto.scryptSync(password, salt, 64).toString("hex");
-  return salt + ":" + hash;
-}
-
 function inicializar() {
   const carpeta = path.dirname(ARCHIVO);
   if (!fs.existsSync(carpeta)) {
@@ -53,7 +47,7 @@ function inicializar() {
         id: u.id,
         nombre: u.nombre,
         email: u.email,
-        password: hashear(u.passwordPlano),
+        password: hashearPassword(u.passwordPlano),
         rol: u.rol,
         creadoEn: new Date().toISOString(),
       })),

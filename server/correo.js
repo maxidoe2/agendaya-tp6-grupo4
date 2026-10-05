@@ -57,7 +57,7 @@ function enviarConfirmacionReserva(reserva) {
     "Tu reserva en AgendaYa quedo confirmada",
     "Hola " + reserva.nombre + ",\n\n" +
       "Tu reserva quedo confirmada.\n" +
-      "  Horario: " + reserva.horario + "\n" +
+      "  Turno:   " + reserva.fecha + " " + reserva.hora + " h\n" +
       "  Codigo:  #" + reserva.id + "\n\n" +
       "Si necesitas cancelarla, responde este correo."
   );
@@ -66,15 +66,15 @@ function enviarConfirmacionReserva(reserva) {
 function notificarAdministrador(reserva) {
   registrar(
     ADMIN,
-    "Nueva reserva: " + reserva.horario,
+    "Nueva reserva: " + reserva.fecha + " " + reserva.hora,
     "Se registro una nueva reserva.\n" +
       "  Invitado: " + reserva.nombre + "\n" +
       "  Correo:   " + reserva.email + "\n" +
       "  Telefono: " + (reserva.telefono || "no informado") + "\n" +
-      "  Horario:  " + reserva.horario + "\n" +
+      "  Turno:    " + reserva.fecha + " " + reserva.hora + " h\n" +
       "  Nota:     " + (reserva.nota || "sin nota") + "\n" +
       "  Codigo:   #" + reserva.id
   );
 }
 
-module.exports = { enviarEnlaceRecuperacion, enviarConfirmacionReserva, notificarAdministrador };
+module.exports = { BITACORA, ADMIN, enviarEnlaceRecuperacion, enviarConfirmacionReserva, notificarAdministrador };
