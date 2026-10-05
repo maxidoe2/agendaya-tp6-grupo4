@@ -1,0 +1,81 @@
+PASS tests/unit/m04-slots-antelacion.test.js
+  calcularSlots
+    √ genera un turno por hora entre el inicio y el fin (caso normal) (24 ms)
+    √ no ofrece un turno que terminaria despues del horario de fin (caso borde) (1 ms)
+    √ devuelve una lista vacia si el inicio y el fin son iguales o la duracion no entra (1 ms)
+    √ lanza un error ante una duracion o una hora invalidas (caso invalido) (62 ms)
+  cumpleAntelacion
+    √ acepta un turno con mas de 2 horas de anticipacion (caso normal) (1 ms)
+    √ acepta exactamente 2 horas y rechaza 1 minuto menos (caso borde)
+    √ rechaza turnos pasados o en el instante actual, aun sin antelacion exigida (caso invalido)
+  esDiaHabil
+    √ un dia de semana sin bloqueo es habil y un sabado no (1 ms)
+    √ un dia bloqueado por el administrador o una fecha imposible no son habiles (1 ms)
+
+PASS tests/unit/m04-validacion-conflictos.test.js
+  validarDatosReserva
+    √ con fecha, hora, nombre y correo validos no devuelve error (caso normal) (23 ms)
+    √ sin correo marca el campo email con el mensaje de CP-008 (caso invalido) (3 ms)
+    √ distingue un correo vacio de uno mal escrito (caso borde) (2 ms)
+    √ sin horario elegido pide elegir uno antes que los datos personales (3 ms)
+  detectarConflicto
+    √ un turno libre no tiene conflicto (caso normal) (2 ms)
+    √ un turno tomado por otro invitado devuelve 'ocupado' con el mensaje del enunciado (2 ms)
+    √ el mismo invitado reenviando su reserva es 'duplicada', aunque cambie mayusculas (CP-010) (16 ms)
+    √ una reserva cancelada libera el turno (caso borde) (1 ms)
+  evaluarReserva (regla completa que aplica el servidor)
+    √ rechaza con 400 un turno de hoy sin la antelacion minima de 2 horas (4 ms)
+    √ rechaza con 409 un turno ocupado y acepta (null) uno libre (4 ms)
+
+PASS tests/unit/m01-password-registro.test.js
+  evaluarPassword
+    √ acepta una contrasena con 8+ caracteres, mayuscula, minuscula y numero (caso normal) (2 ms)
+    √ acepta exactamente 8 caracteres y rechaza 7 (caso borde del largo minimo) (1 ms)
+    √ informa cada regla incumplida por separado (caso invalido) (1 ms)
+    √ trata una contrasena vacia o que no es texto como invalida sin lanzar error (1 ms)
+  validarRegistro
+    √ con todos los datos validos no devuelve error (caso normal) (2 ms)
+    √ un nombre con solo espacios cuenta como vacio (caso borde)
+    √ con la contrasena debil marca el campo password e incluye el motivo (caso invalido) (2 ms)
+    √ informa primero el campo que aparece antes en el formulario (1 ms)
+
+PASS tests/unit/m01-email.test.js
+  normalizarEmail
+    √ quita espacios y pasa a minusculas (caso normal) (2 ms)
+    √ devuelve texto vacio para null o undefined (caso borde) (1 ms)
+  esEmailValido
+    √ acepta un email con usuario, dominio y extension (caso normal) (1 ms)
+    √ rechaza emails sin @, sin dominio o sin extension (casos invalidos) (1 ms)
+    √ rechaza espacios internos y extensiones de una sola letra (casos borde) (1 ms)
+    √ rechaza valores que no son texto (caso invalido) (1 ms)
+  validarLogin
+    √ con usuario y contrasena completos no devuelve error (caso normal) (1 ms)
+    √ con el usuario vacio marca el campo email (caso invalido) (1 ms)
+
+PASS tests/unit/m01-seguridad.test.js
+  hashearPassword / verificarPassword
+    √ el hash no contiene la contrasena y la verificacion la reconoce (caso normal) (395 ms)
+    √ rechaza una contrasena distinta, aunque difiera en una sola letra (caso invalido) (327 ms)
+    √ la misma contrasena genera hashes distintos por la sal aleatoria (caso borde) (311 ms)
+    √ un hash guardado con formato invalido devuelve false en lugar de romper (1 ms)
+    √ no permite hashear una contrasena vacia (29 ms)
+  crearTokenRecuperacion / tokenVigente
+    √ un enlace recien creado vence a los 30 minutos y esta vigente (caso normal) (4 ms)
+    √ vale un milisegundo antes del vencimiento y ya no vale en el instante exacto (caso borde)
+    √ un registro inexistente o con fecha ilegible no es vigente (caso invalido)
+
+------------------|---------|----------|---------|---------|-----------------------------------
+File              | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                 
+------------------|---------|----------|---------|---------|-----------------------------------
+All files         |   83.33 |    74.19 |   86.66 |   87.24 |                                   
+ server           |     100 |     91.3 |     100 |     100 |                                   
+  seguridad.js    |     100 |     91.3 |     100 |     100 | 37,54                             
+ src/logica       |   80.76 |    71.21 |   84.61 |   85.27 |                                   
+  reservas.js     |   76.41 |    66.66 |   78.94 |   80.89 | 14,80,160,166,184-195,209,212,216 
+  validaciones.js |      90 |    79.16 |     100 |      95 | 13,81                             
+------------------|---------|----------|---------|---------|-----------------------------------
+Test Suites: 5 passed, 5 total
+Tests:       43 passed, 43 total
+Snapshots:   0 total
+Time:        3.226 s
+Ran all test suites.
